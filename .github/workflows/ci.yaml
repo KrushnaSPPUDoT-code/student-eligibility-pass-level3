@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, level3-frontend-integration]
   pull_request:
-    branches: [main]
+    branches: [main, level3-frontend-integration]
 
 permissions: {}
 
