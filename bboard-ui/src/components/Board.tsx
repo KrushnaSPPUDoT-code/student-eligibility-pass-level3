@@ -1,18 +1,3 @@
-// This file is part of midnightntwrk/example-bboard.
-// Copyright (C) Midnight Foundation
-// SPDX-License-Identifier: Apache-2.0
-// Licensed under the Apache License, Version 2.0 (the "License");
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import {
@@ -22,124 +7,169 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  IconButton,
-  Skeleton,
+  Button,
   Typography,
-  TextField,
+  Chip,
+  Box,
+  Alert,
+  Skeleton,
 } from '@mui/material';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import WriteIcon from '@mui/icons-material/EditNoteOutlined';
+import CancelIcon from '@mui/icons-material/Cancel';
 import CopyIcon from '@mui/icons-material/ContentPasteOutlined';
-import StopIcon from '@mui/icons-material/HighlightOffOutlined';
-import { type BBoardDerivedState, type DeployedBBoardAPI } from '../../../api/src/index';
+
+import {
+  type BBoardDerivedState,
+  type DeployedBBoardAPI,
+} from '../../../api/src/index';
+
 import { useDeployedBoardContext } from '../hooks';
 import { type BoardDeployment } from '../contexts';
 import { type Observable } from 'rxjs';
-import { State } from '../../../contract/src/index';
-import { EmptyCardContent } from './Board.EmptyCardContent';
 
-/** The props required by the {@link Board} component. */
 export interface BoardProps {
-  /** The observable bulletin board deployment. */
   boardDeployment$?: Observable<BoardDeployment>;
 }
 
-/**
- * Provides the UI for a deployed bulletin board contract; allowing messages to be posted or removed
- * following the rules enforced by the underlying Compact contract.
- *
- * @remarks
- * With no `boardDeployment$` observable, the component will render a UI that allows the user to create
- * or join bulletin boards. It requires a `<DeployedBoardProvider />` to be in scope in order to manage
- * these additional boards. It does this by invoking the `resolve(...)` method on the currently in-
- * scope `DeployedBoardContext`.
- *
- * When a `boardDeployment$` observable is received, the component begins by rendering a skeletal view of
- * itself, along with a loading background. It does this until the board deployment receives a
- * `DeployedBBoardAPI` instance, upon which it will then subscribe to its `state$` observable in order
- * to start receiving the changes in the bulletin board state (i.e., when a user posts a new message).
- */
-export const Board: React.FC<Readonly<BoardProps>> = ({ boardDeployment$ }) => {
+export const Board: React.FC<Readonly<BoardProps>> = ({
+  boardDeployment$,
+}) => {
   const boardApiProvider = useDeployedBoardContext();
-  const [boardDeployment, setBoardDeployment] = useState<BoardDeployment>();
-  const [deployedBoardAPI, setDeployedBoardAPI] = useState<DeployedBBoardAPI>();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [boardState, setBoardState] = useState<BBoardDerivedState>();
-  const [messagePrompt, setMessagePrompt] = useState<string>();
-  const [isWorking, setIsWorking] = useState(!!boardDeployment$);
 
-  // Two simple callbacks that call `resolve(...)` to either deploy or join a bulletin board
-  // contract. Since the `DeployedBoardContext` will create a new board and update the UI, we
-  // don't have to do anything further once we've called `resolve`.
-  const onCreateBoard = useCallback(() => boardApiProvider.resolve(), [boardApiProvider]);
-  const onJoinBoard = useCallback(
-    (contractAddress: ContractAddress) => boardApiProvider.resolve(contractAddress),
+  const [boardDeployment, setBoardDeployment] =
+    useState<BoardDeployment>();
+
+  const [deployedBoardAPI, setDeployedBoardAPI] =
+    useState<DeployedBBoardAPI>();
+
+  const [boardState, setBoardState] =
+    useState<BBoardDerivedState>();
+
+  const [errorMessage, setErrorMessage] =
+    useState<string>();
+
+  const [successMessage, setSuccessMessage] =
+    useState<string>();
+
+  const [isWorking, setIsWorking] =
+    useState(!!boardDeployment$);
+
+  const [eligibilityResult, setEligibilityResult] =
+    useState<boolean>();
+
+  const onCreateBoard = useCallback(
+    () => boardApiProvider.resolve(),
     [boardApiProvider],
   );
 
-  // Callback to handle the posting of a message. The message text is captured in the `messagePrompt`
-  // state, and we just need to forward it to the `post` method of the `DeployedBBoardAPI` instance
-  // that we received in the `deployedBoardAPI` state.
-  const onPostMessage = useCallback(async () => {
-    if (!messagePrompt) {
-      return;
-    }
+  const onJoinBoard = useCallback(
+    (contractAddress: ContractAddress) =>
+      boardApiProvider.resolve(contractAddress),
+    [boardApiProvider],
+  );
+
+  const onIssueCredential = useCallback(async () => {
+    if (!deployedBoardAPI) return;
 
     try {
-      if (deployedBoardAPI) {
-        setIsWorking(true);
-        await deployedBoardAPI.post(messagePrompt);
-      }
+      setIsWorking(true);
+      setErrorMessage(undefined);
+      setSuccessMessage(undefined);
+      setEligibilityResult(undefined);
+
+      await deployedBoardAPI.issueCredential();
+
+      setSuccessMessage(
+        'Eligibility credential issued successfully.',
+      );
     } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : String(error));
+      setErrorMessage(
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setIsWorking(false);
-    }
-  }, [deployedBoardAPI, setErrorMessage, setIsWorking, messagePrompt]);
-
-  // Callback to handle the taking down of a message. Again, we simply invoke the `takeDown` method
-  // of the `DeployedBBoardAPI` instance.
-  const onDeleteMessage = useCallback(async () => {
-    try {
-      if (deployedBoardAPI) {
-        setIsWorking(true);
-        await deployedBoardAPI.takeDown();
-      }
-    } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : String(error));
-    } finally {
-      setIsWorking(false);
-    }
-  }, [deployedBoardAPI, setErrorMessage, setIsWorking]);
-
-  const onCopyContractAddress = useCallback(async () => {
-    if (deployedBoardAPI) {
-      await navigator.clipboard.writeText(deployedBoardAPI.deployedContractAddress);
     }
   }, [deployedBoardAPI]);
 
-  // Subscribes to the `boardDeployment$` observable so that we can receive updates on the deployment.
+  const onProveEligibility = useCallback(async () => {
+    if (!deployedBoardAPI) return;
+
+    try {
+      setIsWorking(true);
+      setErrorMessage(undefined);
+      setSuccessMessage(undefined);
+
+      const result =
+        await deployedBoardAPI.proveEligibility();
+
+      setEligibilityResult(result);
+
+      if (result) {
+        setSuccessMessage(
+          'Eligibility proven successfully without revealing CGPA or attendance.',
+        );
+      }
+    } catch (error: unknown) {
+      setEligibilityResult(false);
+      setErrorMessage(
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }, [deployedBoardAPI]);
+
+  const onRevokeCredential = useCallback(async () => {
+    if (!deployedBoardAPI) return;
+
+    try {
+      setIsWorking(true);
+      setErrorMessage(undefined);
+      setSuccessMessage(undefined);
+      setEligibilityResult(undefined);
+
+      await deployedBoardAPI.revokeCredential();
+
+      setSuccessMessage('Credential revoked successfully.');
+    } catch (error: unknown) {
+      setErrorMessage(
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }, [deployedBoardAPI]);
+
+  const onCopyContractAddress = useCallback(async () => {
+    if (deployedBoardAPI) {
+      await navigator.clipboard.writeText(
+        deployedBoardAPI.deployedContractAddress,
+      );
+
+      setSuccessMessage('Contract address copied.');
+    }
+  }, [deployedBoardAPI]);
+
   useEffect(() => {
     if (!boardDeployment$) {
       return;
     }
 
-    const subscription = boardDeployment$.subscribe(setBoardDeployment);
+    const subscription =
+      boardDeployment$.subscribe(setBoardDeployment);
 
     return () => {
       subscription.unsubscribe();
     };
   }, [boardDeployment$]);
 
-  // Subscribes to the `state$` observable on a `DeployedBBoardAPI` if we receive one, allowing the
-  // component to receive updates to the change in contract state; otherwise we update the UI to
-  // reflect the error was received instead.
   useEffect(() => {
     if (!boardDeployment) {
       return;
     }
+
     if (boardDeployment.status === 'in-progress') {
       return;
     }
@@ -148,133 +178,270 @@ export const Board: React.FC<Readonly<BoardProps>> = ({ boardDeployment$ }) => {
 
     if (boardDeployment.status === 'failed') {
       setErrorMessage(
-        boardDeployment.error.message.length ? boardDeployment.error.message : 'Encountered an unexpected error.',
+        boardDeployment.error.message.length
+          ? boardDeployment.error.message
+          : 'Encountered an unexpected error.',
       );
       return;
     }
 
-    // We need the board API as well as subscribing to its `state$` observable, so that we can invoke
-    // the `post` and `takeDown` methods later.
     setDeployedBoardAPI(boardDeployment.api);
-    const subscription = boardDeployment.api.state$.subscribe(setBoardState);
+
+    const subscription =
+      boardDeployment.api.state$.subscribe(setBoardState);
+
     return () => {
       subscription.unsubscribe();
     };
-  }, [boardDeployment, setIsWorking, setErrorMessage, setDeployedBoardAPI]);
+  }, [boardDeployment]);
+
+  const isActive = boardState?.active === true;
 
   return (
-    <Card sx={{ position: 'relative', width: 275, height: 300, minWidth: 275, minHeight: 300 }} color="primary">
+    <Card
+      sx={{
+        position: 'relative',
+        width: 420,
+        minWidth: 420,
+        minHeight: 430,
+        margin: 'auto',
+      }}
+    >
       {!boardDeployment$ && (
-        <EmptyCardContent onCreateBoardCallback={onCreateBoard} onJoinBoardCallback={onJoinBoard} />
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Student Eligibility Pass
+          </Typography>
+
+          <Typography color="text.secondary">
+            Create or join a private eligibility credential.
+          </Typography>
+
+          <Box sx={{ mt: 3 }}>
+            <Button
+              variant="contained"
+              onClick={onCreateBoard}
+              fullWidth
+            >
+              Create Eligibility Pass
+            </Button>
+
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                To join an existing pass, use the contract address
+                option provided by the application.
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
       )}
 
       {boardDeployment$ && (
-        <React.Fragment>
+        <>
           <Backdrop
-            sx={{ position: 'absolute', color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{
+              position: 'absolute',
+              color: '#fff',
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
             open={isWorking}
           >
-            <CircularProgress data-testid="board-working-indicator" />
+            <CircularProgress />
           </Backdrop>
-          <Backdrop
-            sx={{ position: 'absolute', color: '#ff0000', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={!!errorMessage}
-          >
-            <StopIcon fontSize="large" />
-            <Typography component="div" data-testid="board-error-message">
-              {errorMessage}
-            </Typography>
-          </Backdrop>
+
           <CardHeader
             avatar={
               boardState ? (
-                boardState.state === State.VACANT || (boardState.state === State.OCCUPIED && boardState.isOwner) ? (
-                  <LockOpenIcon data-testid="post-unlocked-icon" />
+                isActive ? (
+                  <LockOpenIcon color="success" />
                 ) : (
-                  <LockIcon data-testid="post-locked-icon" />
+                  <LockIcon />
                 )
               ) : (
-                <Skeleton variant="circular" width={20} height={20} />
-              )
-            }
-            titleTypographyProps={{ color: 'primary' }}
-            title={toShortFormatContractAddress(deployedBoardAPI?.deployedContractAddress) ?? 'Loading...'}
-            action={
-              deployedBoardAPI?.deployedContractAddress ? (
-                <IconButton title="Copy contract address" onClick={onCopyContractAddress}>
-                  <CopyIcon fontSize="small" />
-                </IconButton>
-              ) : (
-                <Skeleton variant="circular" width={20} height={20} />
-              )
-            }
-          />
-          <CardContent>
-            {boardState ? (
-              boardState.state === State.OCCUPIED ? (
-                <Typography data-testid="board-posted-message" sx={{ minHeight: 160 }} color="primary">
-                  {boardState.message}
-                </Typography>
-              ) : (
-                <TextField
-                  id="message-prompt"
-                  data-testid="board-message-prompt"
-                  variant="outlined"
-                  focused
-                  fullWidth
-                  multiline
-                  minRows={6}
-                  maxRows={6}
-                  placeholder="Message to post"
-                  size="small"
-                  color="primary"
-                  slotProps={{ htmlInput: { style: { color: 'black' } } }}
-                  onChange={(e) => {
-                    setMessagePrompt(e.target.value);
-                  }}
+                <Skeleton
+                  variant="circular"
+                  width={30}
+                  height={30}
                 />
               )
+            }
+            title="Student Eligibility Pass"
+            subheader={
+              deployedBoardAPI
+                ? toShortFormatContractAddress(
+                    deployedBoardAPI.deployedContractAddress,
+                  )
+                : 'Loading contract...'
+            }
+            action={
+              deployedBoardAPI ? (
+                <Button
+                  size="small"
+                  onClick={onCopyContractAddress}
+                  title="Copy contract address"
+                >
+                  <CopyIcon fontSize="small" />
+                </Button>
+              ) : null
+            }
+          />
+
+          <CardContent>
+            <Typography
+              variant="h6"
+              sx={{ mb: 2 }}
+            >
+              Privacy-Preserving Eligibility
+            </Typography>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 3 }}
+            >
+              Prove that you satisfy the required academic
+              conditions without revealing your actual CGPA or
+              attendance.
+            </Typography>
+
+            {boardState ? (
+              <Box>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    Credential status
+                  </Typography>
+
+                  <Chip
+                    icon={
+                      isActive ? (
+                        <VerifiedIcon />
+                      ) : (
+                        <CancelIcon />
+                      )
+                    }
+                    label={
+                      isActive
+                        ? 'Credential Active'
+                        : 'No Active Credential'
+                    }
+                    color={isActive ? 'success' : 'default'}
+                    sx={{ mt: 1 }}
+                  />
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    Credential version
+                  </Typography>
+
+                  <Typography variant="h6">
+                    {boardState.credentialVersion.toString()}
+                  </Typography>
+                </Box>
+
+                {eligibilityResult === true && (
+                  <Alert
+                    severity="success"
+                    sx={{ mb: 2 }}
+                  >
+                    Eligibility verified ✓
+                  </Alert>
+                )}
+
+                {eligibilityResult === false && (
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                  >
+                    Eligibility verification failed.
+                  </Alert>
+                )}
+
+                {successMessage && (
+                  <Alert
+                    severity="success"
+                    sx={{ mb: 2 }}
+                  >
+                    {successMessage}
+                  </Alert>
+                )}
+
+                {errorMessage && (
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                  >
+                    {errorMessage}
+                  </Alert>
+                )}
+              </Box>
             ) : (
-              <Skeleton variant="rectangular" width={245} height={160} />
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={180}
+              />
             )}
           </CardContent>
-          <CardActions>
-            {deployedBoardAPI ? (
-              <React.Fragment>
-                <IconButton
-                  title="Post message"
-                  data-testid="board-post-message-btn"
-                  disabled={boardState?.state === State.OCCUPIED || !messagePrompt?.length}
-                  onClick={onPostMessage}
+
+          <CardActions
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+              padding: 2,
+            }}
+          >
+            {deployedBoardAPI && (
+              <>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  startIcon={<VerifiedIcon />}
+                  disabled={isActive}
+                  onClick={onIssueCredential}
                 >
-                  <WriteIcon />
-                </IconButton>
-                <IconButton
-                  title="Take down message"
-                  data-testid="board-take-down-message-btn"
-                  disabled={
-                    boardState?.state === State.VACANT || (boardState?.state === State.OCCUPIED && !boardState.isOwner)
-                  }
-                  onClick={onDeleteMessage}
+                  Issue Eligibility Credential
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<VerifiedIcon />}
+                  disabled={!isActive}
+                  onClick={onProveEligibility}
                 >
-                  <DeleteIcon />
-                </IconButton>
-              </React.Fragment>
-            ) : (
-              <Skeleton variant="rectangular" width={80} height={20} />
+                  Prove Eligibility
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  color="error"
+                  fullWidth
+                  startIcon={<CancelIcon />}
+                  disabled={!isActive}
+                  onClick={onRevokeCredential}
+                >
+                  Revoke Credential
+                </Button>
+              </>
             )}
           </CardActions>
-        </React.Fragment>
+        </>
       )}
     </Card>
   );
 };
 
-/** @internal */
-const toShortFormatContractAddress = (contractAddress: ContractAddress | undefined): React.ReactElement | undefined =>
-  // Returns a new string made up of the first, and last, 8 characters of a given contract address.
+const toShortFormatContractAddress = (
+  contractAddress: ContractAddress | undefined,
+): React.ReactElement | undefined =>
   contractAddress ? (
     <span data-testid="board-address">
-      0x{contractAddress?.replace(/^[A-Fa-f0-9]{6}([A-Fa-f0-9]{8}).*([A-Fa-f0-9]{8})$/g, '$1...$2')}
+      0x
+      {contractAddress.replace(
+        /^[A-Fa-f0-9]{6}([A-Fa-f0-9]{8}).*([A-Fa-f0-9]{8})$/,
+        '$1...$2',
+      )}
     </span>
   ) : undefined;
