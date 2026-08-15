@@ -10,21 +10,11 @@ export type PrivateStates = {
   readonly bboardPrivateState: BBoardPrivateState;
 };
 
-export type BBoardContract = Contract<
-  BBoardPrivateState,
-  Witnesses<BBoardPrivateState>
->;
+export type BBoardContract = Contract<BBoardPrivateState, Witnesses<BBoardPrivateState>>;
 
-export type BBoardCircuitKeys = Exclude<
-  keyof BBoardContract['impureCircuits'],
-  number | symbol
->;
+export type BBoardCircuitKeys = Exclude<keyof BBoardContract['impureCircuits'], number | symbol>;
 
-export type BBoardProviders = MidnightProviders<
-  BBoardCircuitKeys,
-  PrivateStateId,
-  BBoardPrivateState
->;
+export type BBoardProviders = MidnightProviders<BBoardCircuitKeys, PrivateStateId, BBoardPrivateState>;
 
 export type DeployedBBoardContract = FoundContract<BBoardContract>;
 

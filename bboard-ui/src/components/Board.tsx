@@ -20,10 +20,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CopyIcon from '@mui/icons-material/ContentPasteOutlined';
 
-import {
-  type BBoardDerivedState,
-  type DeployedBBoardAPI,
-} from '../../../api/src/index';
+import { type BBoardDerivedState, type DeployedBBoardAPI } from '../../../api/src/index';
 
 import { useDeployedBoardContext } from '../hooks';
 import { type BoardDeployment } from '../contexts';
@@ -33,42 +30,24 @@ export interface BoardProps {
   boardDeployment$?: Observable<BoardDeployment>;
 }
 
-export const Board: React.FC<Readonly<BoardProps>> = ({
-  boardDeployment$,
-}) => {
+export const Board: React.FC<Readonly<BoardProps>> = ({ boardDeployment$ }) => {
   const boardApiProvider = useDeployedBoardContext();
 
-  const [boardDeployment, setBoardDeployment] =
-    useState<BoardDeployment>();
+  const [boardDeployment, setBoardDeployment] = useState<BoardDeployment>();
 
-  const [deployedBoardAPI, setDeployedBoardAPI] =
-    useState<DeployedBBoardAPI>();
+  const [deployedBoardAPI, setDeployedBoardAPI] = useState<DeployedBBoardAPI>();
 
-  const [boardState, setBoardState] =
-    useState<BBoardDerivedState>();
+  const [boardState, setBoardState] = useState<BBoardDerivedState>();
 
-  const [errorMessage, setErrorMessage] =
-    useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
-  const [successMessage, setSuccessMessage] =
-    useState<string>();
+  const [successMessage, setSuccessMessage] = useState<string>();
 
-  const [isWorking, setIsWorking] =
-    useState(!!boardDeployment$);
+  const [isWorking, setIsWorking] = useState(!!boardDeployment$);
 
-  const [eligibilityResult, setEligibilityResult] =
-    useState<boolean>();
+  const [eligibilityResult, setEligibilityResult] = useState<boolean>();
 
-  const onCreateBoard = useCallback(
-    () => boardApiProvider.resolve(),
-    [boardApiProvider],
-  );
-
-  const onJoinBoard = useCallback(
-    (contractAddress: ContractAddress) =>
-      boardApiProvider.resolve(contractAddress),
-    [boardApiProvider],
-  );
+  const onCreateBoard = useCallback(() => boardApiProvider.resolve(), [boardApiProvider]);
 
   const onIssueCredential = useCallback(async () => {
     if (!deployedBoardAPI) return;
@@ -81,13 +60,9 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
 
       await deployedBoardAPI.issueCredential();
 
-      setSuccessMessage(
-        'Eligibility credential issued successfully.',
-      );
+      setSuccessMessage('Eligibility credential issued successfully.');
     } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error ? error.message : String(error),
-      );
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsWorking(false);
     }
@@ -101,21 +76,16 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
       setErrorMessage(undefined);
       setSuccessMessage(undefined);
 
-      const result =
-        await deployedBoardAPI.proveEligibility();
+      const result = await deployedBoardAPI.proveEligibility();
 
       setEligibilityResult(result);
 
       if (result) {
-        setSuccessMessage(
-          'Eligibility proven successfully without revealing CGPA or attendance.',
-        );
+        setSuccessMessage('Eligibility proven successfully without revealing CGPA or attendance.');
       }
     } catch (error: unknown) {
       setEligibilityResult(false);
-      setErrorMessage(
-        error instanceof Error ? error.message : String(error),
-      );
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsWorking(false);
     }
@@ -134,9 +104,7 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
 
       setSuccessMessage('Credential revoked successfully.');
     } catch (error: unknown) {
-      setErrorMessage(
-        error instanceof Error ? error.message : String(error),
-      );
+      setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setIsWorking(false);
     }
@@ -144,9 +112,7 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
 
   const onCopyContractAddress = useCallback(async () => {
     if (deployedBoardAPI) {
-      await navigator.clipboard.writeText(
-        deployedBoardAPI.deployedContractAddress,
-      );
+      await navigator.clipboard.writeText(deployedBoardAPI.deployedContractAddress);
 
       setSuccessMessage('Contract address copied.');
     }
@@ -157,8 +123,7 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
       return;
     }
 
-    const subscription =
-      boardDeployment$.subscribe(setBoardDeployment);
+    const subscription = boardDeployment$.subscribe(setBoardDeployment);
 
     return () => {
       subscription.unsubscribe();
@@ -178,17 +143,14 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
 
     if (boardDeployment.status === 'failed') {
       setErrorMessage(
-        boardDeployment.error.message.length
-          ? boardDeployment.error.message
-          : 'Encountered an unexpected error.',
+        boardDeployment.error.message.length ? boardDeployment.error.message : 'Encountered an unexpected error.',
       );
       return;
     }
 
     setDeployedBoardAPI(boardDeployment.api);
 
-    const subscription =
-      boardDeployment.api.state$.subscribe(setBoardState);
+    const subscription = boardDeployment.api.state$.subscribe(setBoardState);
 
     return () => {
       subscription.unsubscribe();
@@ -213,23 +175,16 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
             Student Eligibility Pass
           </Typography>
 
-          <Typography color="text.secondary">
-            Create or join a private eligibility credential.
-          </Typography>
+          <Typography color="text.secondary">Create or join a private eligibility credential.</Typography>
 
           <Box sx={{ mt: 3 }}>
-            <Button
-              variant="contained"
-              onClick={onCreateBoard}
-              fullWidth
-            >
+            <Button variant="contained" onClick={onCreateBoard} fullWidth>
               Create Eligibility Pass
             </Button>
 
             <Box sx={{ mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                To join an existing pass, use the contract address
-                option provided by the application.
+                To join an existing pass, use the contract address option provided by the application.
               </Typography>
             </Box>
           </Box>
@@ -258,28 +213,18 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
                   <LockIcon />
                 )
               ) : (
-                <Skeleton
-                  variant="circular"
-                  width={30}
-                  height={30}
-                />
+                <Skeleton variant="circular" width={30} height={30} />
               )
             }
             title="Student Eligibility Pass"
             subheader={
               deployedBoardAPI
-                ? toShortFormatContractAddress(
-                    deployedBoardAPI.deployedContractAddress,
-                  )
+                ? toShortFormatContractAddress(deployedBoardAPI.deployedContractAddress)
                 : 'Loading contract...'
             }
             action={
               deployedBoardAPI ? (
-                <Button
-                  size="small"
-                  onClick={onCopyContractAddress}
-                  title="Copy contract address"
-                >
+                <Button size="small" onClick={onCopyContractAddress} title="Copy contract address">
                   <CopyIcon fontSize="small" />
                 </Button>
               ) : null
@@ -287,100 +232,59 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
           />
 
           <CardContent>
-            <Typography
-              variant="h6"
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h6" sx={{ mb: 2 }}>
               Privacy-Preserving Eligibility
             </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 3 }}
-            >
-              Prove that you satisfy the required academic
-              conditions without revealing your actual CGPA or
-              attendance.
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Prove that you satisfy the required academic conditions without revealing your actual CGPA or attendance.
             </Typography>
 
             {boardState ? (
               <Box>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2">
-                    Credential status
-                  </Typography>
+                  <Typography variant="body2">Credential status</Typography>
 
                   <Chip
-                    icon={
-                      isActive ? (
-                        <VerifiedIcon />
-                      ) : (
-                        <CancelIcon />
-                      )
-                    }
-                    label={
-                      isActive
-                        ? 'Credential Active'
-                        : 'No Active Credential'
-                    }
+                    icon={isActive ? <VerifiedIcon /> : <CancelIcon />}
+                    label={isActive ? 'Credential Active' : 'No Active Credential'}
                     color={isActive ? 'success' : 'default'}
                     sx={{ mt: 1 }}
                   />
                 </Box>
 
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2">
-                    Credential version
-                  </Typography>
+                  <Typography variant="body2">Credential version</Typography>
 
-                  <Typography variant="h6">
-                    {boardState.credentialVersion.toString()}
-                  </Typography>
+                  <Typography variant="h6">{boardState.credentialVersion.toString()}</Typography>
                 </Box>
 
                 {eligibilityResult === true && (
-                  <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                  >
+                  <Alert severity="success" sx={{ mb: 2 }}>
                     Eligibility verified ✓
                   </Alert>
                 )}
 
                 {eligibilityResult === false && (
-                  <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                  >
+                  <Alert severity="error" sx={{ mb: 2 }}>
                     Eligibility verification failed.
                   </Alert>
                 )}
 
                 {successMessage && (
-                  <Alert
-                    severity="success"
-                    sx={{ mb: 2 }}
-                  >
+                  <Alert severity="success" sx={{ mb: 2 }}>
                     {successMessage}
                   </Alert>
                 )}
 
                 {errorMessage && (
-                  <Alert
-                    severity="error"
-                    sx={{ mb: 2 }}
-                  >
+                  <Alert severity="error" sx={{ mb: 2 }}>
                     {errorMessage}
                   </Alert>
                 )}
               </Box>
             ) : (
-              <Skeleton
-                variant="rectangular"
-                width="100%"
-                height={180}
-              />
+              <Skeleton variant="rectangular" width="100%" height={180} />
             )}
           </CardContent>
 
@@ -433,15 +337,10 @@ export const Board: React.FC<Readonly<BoardProps>> = ({
   );
 };
 
-const toShortFormatContractAddress = (
-  contractAddress: ContractAddress | undefined,
-): React.ReactElement | undefined =>
+const toShortFormatContractAddress = (contractAddress: ContractAddress | undefined): React.ReactElement | undefined =>
   contractAddress ? (
     <span data-testid="board-address">
       0x
-      {contractAddress.replace(
-        /^[A-Fa-f0-9]{6}([A-Fa-f0-9]{8}).*([A-Fa-f0-9]{8})$/,
-        '$1...$2',
-      )}
+      {contractAddress.replace(/^[A-Fa-f0-9]{6}([A-Fa-f0-9]{8}).*([A-Fa-f0-9]{8})$/, '$1...$2')}
     </span>
   ) : undefined;

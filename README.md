@@ -174,8 +174,7 @@ student-eligibility-pass-level3/
 │   │   ├── contexts/
 │   │   └── hooks/
 │   └── public/
-│
-└── bboard-cli/
+
 🔐 Smart Contract
 
 The Compact smart contract provides three primary operations.

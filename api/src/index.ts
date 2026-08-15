@@ -13,17 +13,11 @@ import {
 import { CompiledBBoardContractContract } from '../../contract/src/index.js';
 import * as utils from './utils/index.js';
 
-import {
-  deployContract,
-  findDeployedContract,
-} from '@midnight-ntwrk/midnight-js-contracts';
+import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 
-import {
-  type BBoardPrivateState,
-  createBBoardPrivateState,
-} from '../../contract/src/witnesses.js';
+import { type BBoardPrivateState, createBBoardPrivateState } from '../../contract/src/witnesses.js';
 
 export interface DeployedBBoardAPI {
   readonly deployedContractAddress: ContractAddress;
@@ -40,18 +34,13 @@ export class BBoardAPI implements DeployedBBoardAPI {
     providers: BBoardProviders,
     private readonly logger?: Logger,
   ) {
-    this.deployedContractAddress =
-      deployedContract.deployTxData.public.contractAddress;
+    this.deployedContractAddress = deployedContract.deployTxData.public.contractAddress;
 
-    providers.privateStateProvider.setContractAddress(
-      this.deployedContractAddress,
-    );
+    providers.privateStateProvider.setContractAddress(this.deployedContractAddress);
 
-    this.state$ =
-      providers.publicDataProvider.contractStateObservable(
-        this.deployedContractAddress,
-        { type: 'latest' },
-      ).pipe(
+    this.state$ = providers.publicDataProvider
+      .contractStateObservable(this.deployedContractAddress, { type: 'latest' })
+      .pipe(
         // Convert the raw state returned by the indexer into our Compact ledger.
         (source) =>
           new Observable<BBoardDerivedState>((subscriber) => {
@@ -79,8 +68,7 @@ export class BBoardAPI implements DeployedBBoardAPI {
   async issueCredential(): Promise<void> {
     this.logger?.info('issuingCredential');
 
-    const txData =
-      await this.deployedContract.callTx.issueCredential();
+    const txData = await this.deployedContract.callTx.issueCredential();
 
     this.logger?.trace({
       transactionAdded: {
@@ -94,8 +82,7 @@ export class BBoardAPI implements DeployedBBoardAPI {
   async proveEligibility(): Promise<boolean> {
     this.logger?.info('provingEligibility');
 
-    const txData =
-      await this.deployedContract.callTx.proveEligibility();
+    const txData = await this.deployedContract.callTx.proveEligibility();
 
     this.logger?.trace({
       transactionAdded: {
@@ -111,8 +98,7 @@ export class BBoardAPI implements DeployedBBoardAPI {
   async revokeCredential(): Promise<void> {
     this.logger?.info('revokingCredential');
 
-    const txData =
-      await this.deployedContract.callTx.revokeCredential();
+    const txData = await this.deployedContract.callTx.revokeCredential();
 
     this.logger?.trace({
       transactionAdded: {
@@ -123,87 +109,50 @@ export class BBoardAPI implements DeployedBBoardAPI {
     });
   }
 
-  static async deploy(
-    providers: BBoardProviders,
-    logger?: Logger,
-  ): Promise<BBoardAPI> {
+  static async deploy(providers: BBoardProviders, logger?: Logger): Promise<BBoardAPI> {
     logger?.info('deployContract');
 
     const deployedBBoardContract = await deployContract(providers, {
       compiledContract: CompiledBBoardContractContract,
       privateStateId: bboardPrivateStateKey,
-      initialPrivateState: createBBoardPrivateState(
-        utils.randomBytes(32),
-        850n,
-        85n,
-      ),
+      initialPrivateState: createBBoardPrivateState(utils.randomBytes(32), 850n, 85n),
     });
 
     logger?.trace({
       contractDeployed: {
-        finalizedDeployTxData:
-          deployedBBoardContract.deployTxData.public,
+        finalizedDeployTxData: deployedBBoardContract.deployTxData.public,
       },
     });
 
-    return new BBoardAPI(
-      deployedBBoardContract,
-      providers,
-      logger,
-    );
+    return new BBoardAPI(deployedBBoardContract, providers, logger);
   }
 
-  static async join(
-    providers: BBoardProviders,
-    contractAddress: ContractAddress,
-    logger?: Logger,
-  ): Promise<BBoardAPI> {
+  static async join(providers: BBoardProviders, contractAddress: ContractAddress, logger?: Logger): Promise<BBoardAPI> {
     logger?.info({
       joinContract: {
         contractAddress,
       },
     });
 
-    const deployedBBoardContract =
-      await findDeployedContract<BBoardContract>(providers, {
-        contractAddress,
-        compiledContract: CompiledBBoardContractContract,
-        privateStateId: bboardPrivateStateKey,
-        initialPrivateState:
-          await BBoardAPI.getPrivateState(
-            providers,
-            contractAddress,
-          ),
-      });
+    const deployedBBoardContract = await findDeployedContract<BBoardContract>(providers, {
+      contractAddress,
+      compiledContract: CompiledBBoardContractContract,
+      privateStateId: bboardPrivateStateKey,
+      initialPrivateState: await BBoardAPI.getPrivateState(providers, contractAddress),
+    });
 
-    return new BBoardAPI(
-      deployedBBoardContract,
-      providers,
-      logger,
-    );
+    return new BBoardAPI(deployedBBoardContract, providers, logger);
   }
 
   private static async getPrivateState(
     providers: BBoardProviders,
     contractAddress: ContractAddress,
   ): Promise<BBoardPrivateState> {
-    providers.privateStateProvider.setContractAddress(
-      contractAddress,
-    );
+    providers.privateStateProvider.setContractAddress(contractAddress);
 
-    const existingPrivateState =
-      await providers.privateStateProvider.get(
-        bboardPrivateStateKey,
-      );
+    const existingPrivateState = await providers.privateStateProvider.get(bboardPrivateStateKey);
 
-    return (
-      existingPrivateState ??
-      createBBoardPrivateState(
-        utils.randomBytes(32),
-        850n,
-        85n,
-      )
-    );
+    return existingPrivateState ?? createBBoardPrivateState(utils.randomBytes(32), 850n, 85n);
   }
 }
 
