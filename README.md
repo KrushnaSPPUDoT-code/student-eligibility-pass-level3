@@ -4,7 +4,7 @@ A privacy-preserving student eligibility dApp built on the [Midnight Network](ht
 
 Student Eligibility Pass allows a student to prove that they satisfy academic eligibility requirements without revealing their exact CGPA or attendance.
 
-The project demonstrates how Midnight's privacy model, Compact smart contracts, private state, witnesses, and zero-knowledge proofs can be used to protect sensitive academic information while still providing verifiable eligibility results.
+The project demonstrates Midnight's privacy model, Compact smart contracts, private state, witnesses, and zero-knowledge proofs.
 
 ---
 
@@ -15,9 +15,9 @@ Educational institutions may need to verify whether a student satisfies requirem
 - Minimum CGPA
 - Minimum attendance
 
-Traditional verification requires the student to disclose their actual academic values.
+Traditional verification requires students to disclose their actual academic values.
 
-**Student Eligibility Pass changes this by allowing the student to prove eligibility without revealing the underlying CGPA or attendance values.**
+**Student Eligibility Pass allows a student to prove eligibility without revealing the underlying CGPA or attendance values.**
 
 ### Eligibility Requirements
 
@@ -40,31 +40,30 @@ The student's actual academic values are maintained in private state and accesse
 - 📊 Public credential status
 - 🔢 Credential version tracking
 - 👛 Midnight wallet integration
-- 🌐 Midnight Preprod network support
+- 🌐 Midnight Preprod support
 - ⚡ React + TypeScript frontend
 - 🧩 Compact smart contract
-- 🔑 Generated proving and verifying keys
 - 📋 Contract address display and copy functionality
 
 ---
 
-# 🔒 Privacy Model
+## 🔒 Privacy Model
 
 Privacy is the central purpose of Student Eligibility Pass.
 
-## Private Information
+### Private Information
 
-The following information is maintained as private state:
+The following information remains private:
 
 - Student CGPA
 - Student attendance
-- Student secret key
+- Student secret/private state
 
-The frontend does not need to publish the student's exact CGPA or attendance to the blockchain.
+The student's exact academic values do not need to be published to the blockchain.
 
-The private values are supplied to the Compact circuit through witnesses during proof generation.
+Witness functions provide the private values to the Compact circuit when generating the eligibility proof.
 
-## What a Blockchain Observer Can Learn
+### What a Blockchain Observer Can Learn
 
 An observer can see publicly observable information such as:
 
@@ -73,11 +72,11 @@ An observer can see publicly observable information such as:
 - Credential status
 - Credential version
 - Public transaction information
-- The public outcome/state associated with a submitted proof
+- Public state resulting from contract operations
 
-## What an Observer Cannot Learn
+### What an Observer Cannot Learn
 
-The privacy-preserving proof does not expose the student's exact:
+The eligibility proof does not reveal the student's exact:
 
 - CGPA
 - Attendance
@@ -86,8 +85,7 @@ For example, the student can prove:
 
 ```text
 CGPA ≥ 8.00
-Attendance ≥ 75%
-without publishing values such as:
+Attendance ≥ 75% without publishing values such as:
 
 CGPA = 8.50
 Attendance = 85%
@@ -95,9 +93,6 @@ Attendance = 85%
 The purpose of the zero-knowledge proof is to demonstrate that the required conditions are satisfied without revealing the underlying private values.
 
 🧪 How the Privacy Proof Works
-
-The application follows this flow:
-
 Student
    │
    │ Private CGPA + Attendance
@@ -151,7 +146,7 @@ The exact CGPA and attendance values remain private.
                        │
                        ▼
                 Midnight Preprod
-Project Structure
+📁 Project Structure
 student-eligibility-pass-level3/
 │
 ├── contract/
@@ -160,7 +155,6 @@ student-eligibility-pass-level3/
 │       ├── index.ts
 │       ├── witnesses.ts
 │       └── managed/
-│           └── bboard/
 │
 ├── api/
 │   └── src/
@@ -174,375 +168,117 @@ student-eligibility-pass-level3/
 │   │   ├── contexts/
 │   │   └── hooks/
 │   └── public/
+│
+└── README.md
+⚙️ Prerequisites
 
-🔐 Smart Contract
+Install:
 
-The Compact smart contract provides three primary operations.
-
-Issue Eligibility Credential
-
-Creates or activates an eligibility credential for the student.
-
-The application updates the public credential state while keeping the student's academic information private.
-
-Prove Eligibility
-
-The student submits an eligibility proof.
-
-The private CGPA and attendance are used by the circuit to verify the required conditions.
-
-A successful proof demonstrates eligibility without exposing the exact academic values.
-
-Revoke Credential
-
-The active credential can be revoked.
-
-The public credential state is updated to reflect the revocation.
-
-🖥️ Frontend
-
-The React frontend provides a simple interface for interacting with the privacy-preserving credential.
-
-Available functionality
-Create Eligibility Pass
-Issue Eligibility Credential
-View credential status
-View credential version
-Prove Eligibility
-Revoke Credential
-View contract address
-Copy contract address
-Display transaction success/error messages
-Successful Verification
-
-The completed frontend flow has been tested successfully.
-
-The application displayed:
-
-Credential Active
-
-
-Credential version: 3
-
-
-Eligibility verified ✓
-
-
-Eligibility proven successfully without revealing CGPA or attendance.
-👛 Wallet Integration
-
-The application uses the Midnight wallet for blockchain interaction.
-
-The wallet is used to:
-
-Connect the student to the dApp
-Authorize transactions
-Interact with the deployed contract
-Submit privacy-preserving transactions
-Wallet Evidence
-
-The final submission will include a screenshot showing the connected Midnight wallet and network configuration.
-
-Screenshot:
-
-docs/screenshots/wallet.png
-📜 Contract Deployment
-
-The Student Eligibility Pass contract has been tested on the Midnight Preprod network.
-
-Contract Address
-TODO: ADD DEPLOYED CONTRACT ADDRESS
-Contract Address Screenshot
-
-The final submission will include evidence showing the deployed contract address.
-
-docs/screenshots/contract-address.png
-🌐 Network
-
-The application has been tested using the:
-
-Midnight Preprod Network
-
-The frontend connects through the Midnight wallet and uses the local proof server for zero-knowledge proof generation.
-
-🚀 Running the Project
-Prerequisites
-
-Make sure the following are installed:
-
-Node.js 24+
+Node.js
 npm
 Docker Desktop
-Compact compiler
-Midnight wallet
+Midnight Compact compiler
+Midnight-compatible wallet
 
-Check Node.js:
+The application is designed to work with the Midnight Preprod network.
 
-node --version
+🚀 Installation
 
-Check npm:
+Clone the repository:
 
-npm --version
+git clone https://github.com/KrushnaSPPUDoT-code/student-eligibility-pass-level3.git
+cd student-eligibility-pass-level3
 
-Check Docker:
-
-docker --version
-Install Dependencies
-
-From the project root:
+Install dependencies:
 
 npm install
-Compile the Compact Contract
+🧪 Run Tests
+
+Run the contract test suite:
+
 cd contract
-npm run compact
-npm run build
-cd ..
-Build the API
-cd api
-npm run build
-cd ..
-Build the Frontend
-cd bboard-ui
-npm run build
+npm test -- --run
 
-The frontend build also copies the generated proving/verifying keys and ZKIR files required by the application.
+The current test suite contains 9 tests covering:
 
-Start the Frontend
+Credential initialization
+Credential issuance
+Successful eligibility proof
+Insufficient CGPA rejection
+Insufficient attendance rejection
+Duplicate credential prevention
+Credential revocation
+Proof without an active credential
+Proof after credential revocation
+🔍 Validation
 
-After building:
+Run the complete workspace checks:
 
-npm run start
+npm run ci --workspace api
+npm run ci --workspace contract
+npm run ci --workspace bboard-ui
 
-The exact command may depend on the local environment and selected Midnight network.
+These checks perform TypeScript validation, linting, builds, and contract tests.
 
-🧪 Testing
+🌐 Application Flow
 
-Automated tests are part of the Level 3 submission requirements.
+The application provides the following flow:
 
-Test Requirement
+Connect the Midnight wallet.
+Create or load the Student Eligibility Pass contract.
+Issue an eligibility credential.
+Generate a privacy-preserving eligibility proof.
+View the public credential status.
+Revoke the credential when required.
 
-The project must demonstrate:
+The exact academic values remain private during eligibility verification.
 
-Minimum 3 tests passing
-Test Command
-cd contract
-npm test
-Test Evidence
+🔐 Smart Contract Operations
 
-A screenshot showing the successful test output will be added here:
+The Compact smart contract provides three primary operations:
 
-docs/screenshots/tests.png
-Test Result
-TODO: ADD FINAL TEST OUTPUT
-⚙️ CI/CD
+issueCredential
 
-The project submission requires a CI/CD workflow with a passing run.
+Issues a credential when the student's private academic information satisfies the eligibility requirements.
 
-The repository will include a GitHub Actions workflow for automated validation.
+proveEligibility
 
-The workflow will verify items such as:
+Generates a proof that the student satisfies the required conditions without exposing the exact CGPA or attendance.
 
-TypeScript compilation
-Contract compilation
-Tests
-Linting
-Build validation
-CI/CD Evidence
+revokeCredential
 
-GitHub Actions workflow:
+Revokes an active eligibility credential.
 
-TODO: ADD WORKFLOW LINK / BADGE
+🧪 Test Results
 
-Passing workflow screenshot:
+The current contract test suite contains:
 
-docs/screenshots/ci-passing.png
-📸 Demo Evidence
+Test Files  1 passed (1)
+Tests       9 passed (9)
 
-The final submission will include screenshots demonstrating the complete working flow.
+The tests verify both successful and rejected eligibility scenarios.
 
-Screenshot 1 — Midnight Wallet
-docs/screenshots/wallet.png
+🔄 CI/CD
 
-Shows:
+The repository includes a GitHub Actions workflow that automatically validates the project.
 
-Connected wallet
-Midnight network
-Wallet balance/network configuration
-Screenshot 2 — Contract Address
-docs/screenshots/contract-address.png
+The CI pipeline checks the project's TypeScript, linting, build, and testing requirements.
 
-Shows:
-
-Deployed contract address
-Screenshot 3 — Credential Issued
-docs/screenshots/credential-issued.png
-
-Shows:
-
-Successful credential issuance
-Screenshot 4 — Credential Active
-docs/screenshots/credential-active.png
-
-Shows:
-
-Credential Active
-Credential version
-Screenshot 5 — Eligibility Verified
-docs/screenshots/eligibility-verified.png
-
-Shows:
-
-Eligibility verified ✓
-
-and:
-
-Eligibility proven successfully without revealing CGPA or attendance.
-Screenshot 6 — Frontend
-docs/screenshots/frontend.png
-
-Shows the complete Student Eligibility Pass interface.
-
-🎥 Demo Video
-
-A short demonstration video will show the complete application flow.
-
-The target duration is approximately:
-
-1 minute
-
-Demo Flow
-1. Connect Midnight wallet
-        ↓
-2. Create Eligibility Pass
-        ↓
-3. Issue Eligibility Credential
-        ↓
-4. Show Credential Active
-        ↓
-5. Prove Eligibility
-        ↓
-6. Show Eligibility Verified
-Demo Video
-TODO: ADD DEMO VIDEO LINK
-🔗 Links
-GitHub Repository
+Repository:
 
 https://github.com/KrushnaSPPUDoT-code/student-eligibility-pass-level3
 
-Live Demo
-TODO: ADD LIVE DEMO URL
-Deployed Contract
-TODO: ADD CONTRACT ADDRESS
-Demo Video
-TODO: ADD VIDEO LINK
-📋 Level 3 Submission Checklist
-Requirement	Status
-Functional Midnight dApp	✅
-Meaningful use of Midnight privacy model	✅
-Minimum 3 tests passing	⏳
-CI/CD workflow	⏳
-Passing CI/CD run	⏳
-Approved idea	⏳
-Public GitHub repository	✅
-Complete README	🔄
-Live demo	⏳
-Test-output screenshot	⏳
-CI/CD evidence	⏳
-One-minute demo video	⏳
-Privacy model section	✅
-Product proposal approval evidence	⏳
-Minimum 10 meaningful commits	⏳
-📊 Current Development Status
+🎥 Demo
 
-The current Level 3 implementation successfully demonstrates:
+A live demonstration and demo video will be provided as part of the project submission.
 
-Midnight wallet connection
-Contract deployment
-Eligibility credential issuance
-Active credential state
-Credential version tracking
+The demonstration covers:
+
+Wallet connection
+Credential creation
 Eligibility proof
-Successful privacy-preserving verification
-Contract address display
-Contract address copy functionality
-React frontend integration
-Midnight.js API integration
-Private student CGPA and attendance state
-Witness-based access to private values
-Zero-knowledge eligibility verification
+Privacy-preserving verification
+Credential revocation
+📜 License
 
-The successful frontend verification demonstrated that the student can prove eligibility without displaying their exact CGPA or attendance.
-
-🧑‍💻 Technology Stack
-Technology	Purpose
-Midnight Network	Privacy-preserving blockchain
-Compact	Smart contract language
-Midnight.js	Contract and wallet integration
-React	Frontend
-TypeScript	Application development
-Vite	Frontend build tooling
-Material UI	User interface
-Docker	Local proof server
-Zero-Knowledge Proofs	Private eligibility verification
-GitHub Actions	CI/CD
-🔒 Security and Privacy Principles
-
-Student Eligibility Pass follows a privacy-first design.
-
-Sensitive academic information is not intentionally exposed through the public UI or public contract state.
-
-The application's core privacy principle is:
-
-Prove the condition, not the underlying data.
-
-Instead of publishing:
-
-CGPA = 8.50
-Attendance = 85%
-
-the application allows the student to demonstrate:
-
-CGPA ≥ 8.00
-Attendance ≥ 75%
-
-while keeping the underlying values private.
-
-📄 License
-
-This project is developed as part of the Midnight Level 3 project.
-
-Built with:
-
-Midnight Network
-Compact
-Midnight.js
-React
-TypeScript
-🙌 Student Eligibility Pass
-
-A privacy-preserving way to prove academic eligibility without exposing private academic data.
-
-
-
-### After pasting
-
-
-In nano:
-
-
-**Save:**
-```text
-Ctrl + O
-Enter
-
-Exit:
-
-Ctrl + X
-
-Then run:
-
-wc -l README.md
-git diff --check
-git status
-
-If git diff --check gives no output, that's good.
+This project is based on Midnight's example dApp structure and is intended for educational and demonstration purposes.
