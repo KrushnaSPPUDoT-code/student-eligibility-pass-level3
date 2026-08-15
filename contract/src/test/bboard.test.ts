@@ -16,11 +16,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("issues a credential to an eligible student", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     const ledger = simulator.issueCredential();
 
@@ -28,11 +24,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("proves eligibility without exposing the student's values", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     simulator.issueCredential();
 
@@ -40,11 +32,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("rejects a student with insufficient CGPA", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      750n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 750n, 85n);
 
     expect(() => simulator.issueCredential()).toThrow(
       "CGPA requirement not satisfied",
@@ -52,11 +40,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("rejects a student with insufficient attendance", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      70n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 70n);
 
     expect(() => simulator.issueCredential()).toThrow(
       "Attendance requirement not satisfied",
@@ -64,11 +48,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("does not allow a second credential while active", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     simulator.issueCredential();
 
@@ -78,11 +58,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("revokes an active credential", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     simulator.issueCredential();
     const ledger = simulator.revokeCredential();
@@ -92,11 +68,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("cannot prove eligibility without an active credential", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     expect(() => simulator.proveEligibility()).toThrow(
       "Credential is not active",
@@ -104,11 +76,7 @@ describe("Student Eligibility Pass smart contract", () => {
   });
 
   it("cannot prove eligibility after revocation", () => {
-    const simulator = new BBoardSimulator(
-      randomBytes(32),
-      850n,
-      85n,
-    );
+    const simulator = new BBoardSimulator(randomBytes(32), 850n, 85n);
 
     simulator.issueCredential();
     simulator.revokeCredential();

@@ -12,20 +12,13 @@ import {
   ledger,
 } from "../managed/bboard/contract/index.js";
 
-import {
-  type BBoardPrivateState,
-  witnesses,
-} from "../witnesses.js";
+import { type BBoardPrivateState, witnesses } from "../witnesses.js";
 
 export class BBoardSimulator {
   readonly contract: Contract<BBoardPrivateState>;
   circuitContext: CircuitContext<BBoardPrivateState>;
 
-  constructor(
-    secretKey: Uint8Array,
-    cgpa = 850n,
-    attendance = 85n,
-  ) {
+  constructor(secretKey: Uint8Array, cgpa = 850n, attendance = 85n) {
     this.contract = new Contract<BBoardPrivateState>(witnesses);
 
     const {
@@ -63,25 +56,22 @@ export class BBoardSimulator {
   }
 
   public issueCredential(): Ledger {
-    this.circuitContext =
-      this.contract.impureCircuits.issueCredential(
-        this.circuitContext,
-      ).context;
+    this.circuitContext = this.contract.impureCircuits.issueCredential(
+      this.circuitContext,
+    ).context;
 
     return this.getLedger();
   }
 
   public proveEligibility(): boolean {
-    return this.contract.impureCircuits.proveEligibility(
-      this.circuitContext,
-    ).result;
+    return this.contract.impureCircuits.proveEligibility(this.circuitContext)
+      .result;
   }
 
   public revokeCredential(): Ledger {
-    this.circuitContext =
-      this.contract.impureCircuits.revokeCredential(
-        this.circuitContext,
-      ).context;
+    this.circuitContext = this.contract.impureCircuits.revokeCredential(
+      this.circuitContext,
+    ).context;
 
     return this.getLedger();
   }
