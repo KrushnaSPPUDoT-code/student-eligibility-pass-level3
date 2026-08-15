@@ -44,7 +44,7 @@ jobs:
 
       - name: Build contract
         working-directory: contract
-        run: npm run compact
+        run: npm run build
 
       - name: Build frontend
         working-directory: bboard-ui
