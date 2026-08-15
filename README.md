@@ -1,277 +1,549 @@
-# Bulletin Board DApp
+# Student Eligibility Pass
 
-This project is built on the [Midnight Network](https://midnight.network/).
+A privacy-preserving student eligibility dApp built on the [Midnight Network](https://midnight.network/).
 
-[![Generic badge](https://img.shields.io/badge/Compact%20Compiler-0.30.0-1abc9c.svg)](https://shields.io/)
-[![Generic badge](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://shields.io/)
+Student Eligibility Pass allows a student to prove that they satisfy academic eligibility requirements without revealing their exact CGPA or attendance.
+
+The project demonstrates how Midnight's privacy model, Compact smart contracts, private state, witnesses, and zero-knowledge proofs can be used to protect sensitive academic information while still providing verifiable eligibility results.
+
+---
+
+## 🎯 Project Overview
+
+Educational institutions may need to verify whether a student satisfies requirements such as:
+
+- Minimum CGPA
+- Minimum attendance
+
+Traditional verification requires the student to disclose their actual academic values.
+
+**Student Eligibility Pass changes this by allowing the student to prove eligibility without revealing the underlying CGPA or attendance values.**
+
+### Eligibility Requirements
+
+| Requirement | Threshold |
+|---|---:|
+| CGPA | ≥ 8.00 |
+| Attendance | ≥ 75% |
+
+The student's actual academic values are maintained in private state and accessed by the Compact contract through witness functions.
+
+---
+
+## ✨ Features
+
+- 🔐 Privacy-preserving eligibility verification
+- 🎓 Student eligibility credential
+- 🧾 Credential issuance
+- ✅ Zero-knowledge eligibility proof
+- 🔄 Credential revocation
+- 📊 Public credential status
+- 🔢 Credential version tracking
+- 👛 Midnight wallet integration
+- 🌐 Midnight Preprod network support
+- ⚡ React + TypeScript frontend
+- 🧩 Compact smart contract
+- 🔑 Generated proving and verifying keys
+- 📋 Contract address display and copy functionality
+
+---
+
+# 🔒 Privacy Model
+
+Privacy is the central purpose of Student Eligibility Pass.
+
+## Private Information
+
+The following information is maintained as private state:
+
+- Student CGPA
+- Student attendance
+- Student secret key
+
+The frontend does not need to publish the student's exact CGPA or attendance to the blockchain.
+
+The private values are supplied to the Compact circuit through witnesses during proof generation.
+
+## What a Blockchain Observer Can Learn
+
+An observer can see publicly observable information such as:
+
+- Contract address
+- Public contract state
+- Credential status
+- Credential version
+- Public transaction information
+- The public outcome/state associated with a submitted proof
+
+## What an Observer Cannot Learn
+
+The privacy-preserving proof does not expose the student's exact:
+
+- CGPA
+- Attendance
+
+For example, the student can prove:
+
+```text
+CGPA ≥ 8.00
+Attendance ≥ 75%
+without publishing values such as:
+
+CGPA = 8.50
+Attendance = 85%
+
+The purpose of the zero-knowledge proof is to demonstrate that the required conditions are satisfied without revealing the underlying private values.
+
+🧪 How the Privacy Proof Works
+
+The application follows this flow:
+
+Student
+   │
+   │ Private CGPA + Attendance
+   ▼
+Private State
+   │
+   │ Witness Functions
+   ▼
+Compact Smart Contract
+   │
+   │ Eligibility Circuit
+   ▼
+Zero-Knowledge Proof
+   │
+   ▼
+Midnight Network
+   │
+   ├── Public Credential Status
+   ├── Credential Version
+   └── Public Transaction State
+Step-by-step
+The student's academic information is stored in private state.
+Witness functions provide the private values to the Compact circuit.
+The eligibility circuit evaluates the required conditions.
+Midnight generates a zero-knowledge proof.
+The blockchain records the appropriate public state and transaction information.
+The exact CGPA and attendance values remain private.
+🏗️ Architecture
+                    Student
+                       │
+                       ▼
+              Midnight Wallet
+                       │
+                       ▼
+             React + TypeScript UI
+                       │
+                       ▼
+                Midnight.js API
+                       │
+                       ▼
+              Compact Smart Contract
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+          ▼            ▼            ▼
+       Issue        Prove        Revoke
+     Credential   Eligibility   Credential
+                       │
+                       ▼
+              Zero-Knowledge Proof
+                       │
+                       ▼
+                Midnight Preprod
+Project Structure
+student-eligibility-pass-level3/
+│
+├── contract/
+│   └── src/
+│       ├── bboard.compact
+│       ├── index.ts
+│       ├── witnesses.ts
+│       └── managed/
+│           └── bboard/
+│
+├── api/
+│   └── src/
+│       ├── index.ts
+│       └── common-types.ts
+│
+├── bboard-ui/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   └── hooks/
+│   └── public/
+│
+└── bboard-cli/
+🔐 Smart Contract
+
+The Compact smart contract provides three primary operations.
+
+Issue Eligibility Credential
+
+Creates or activates an eligibility credential for the student.
+
+The application updates the public credential state while keeping the student's academic information private.
+
+Prove Eligibility
+
+The student submits an eligibility proof.
+
+The private CGPA and attendance are used by the circuit to verify the required conditions.
+
+A successful proof demonstrates eligibility without exposing the exact academic values.
+
+Revoke Credential
+
+The active credential can be revoked.
+
+The public credential state is updated to reflect the revocation.
+
+🖥️ Frontend
+
+The React frontend provides a simple interface for interacting with the privacy-preserving credential.
+
+Available functionality
+Create Eligibility Pass
+Issue Eligibility Credential
+View credential status
+View credential version
+Prove Eligibility
+Revoke Credential
+View contract address
+Copy contract address
+Display transaction success/error messages
+Successful Verification
+
+The completed frontend flow has been tested successfully.
+
+The application displayed:
+
+Credential Active
 
 
-> **Use this repo as a template. Do not fork it.**
->  
-> This repository is intended to be used via GitHub’s “Use this template” flow.  
-> Forking this repo is discouraged, as forks are not tracked as independent projects.
+Credential version: 3
 
-A Midnight smart contract example demonstrating a simple one-item bulletin board with zero-knowledge proofs on testnet. Users can post a single message at a time, and only the message author can remove it.
 
-## Project Structure
+Eligibility verified ✓
 
-```
-bulletin-board/
-├── contract/               # Smart contract in Compact language
-│   └── src/               # Contract source and utilities
-├── api/                   # Methods, classes and types for CLI and UI
-├── bboard-cli/            # Command-line interface
-│   └── src/               # CLI implementation
-└── bboard-ui/             # Web browser interface
-    └── src/               # Web UI implementation
-```
 
-## Prerequisites
+Eligibility proven successfully without revealing CGPA or attendance.
+👛 Wallet Integration
 
-### 1. Node.js Version Check
+The application uses the Midnight wallet for blockchain interaction.
 
-You need Node.js:
+The wallet is used to:
 
-```bash
+Connect the student to the dApp
+Authorize transactions
+Interact with the deployed contract
+Submit privacy-preserving transactions
+Wallet Evidence
+
+The final submission will include a screenshot showing the connected Midnight wallet and network configuration.
+
+Screenshot:
+
+docs/screenshots/wallet.png
+📜 Contract Deployment
+
+The Student Eligibility Pass contract has been tested on the Midnight Preprod network.
+
+Contract Address
+TODO: ADD DEPLOYED CONTRACT ADDRESS
+Contract Address Screenshot
+
+The final submission will include evidence showing the deployed contract address.
+
+docs/screenshots/contract-address.png
+🌐 Network
+
+The application has been tested using the:
+
+Midnight Preprod Network
+
+The frontend connects through the Midnight wallet and uses the local proof server for zero-knowledge proof generation.
+
+🚀 Running the Project
+Prerequisites
+
+Make sure the following are installed:
+
+Node.js 24+
+npm
+Docker Desktop
+Compact compiler
+Midnight wallet
+
+Check Node.js:
+
 node --version
-```
 
-Expected output: `v24.11.1` or higher. The repository includes an [.nvmrc](./.nvmrc) pinned to `24.11.1`.
+Check npm:
 
-If you get a lower version: [Install Node.js LTS](https://nodejs.org/).
+npm --version
 
-### 2. Docker Installation
+Check Docker:
 
-The [proof server](https://docs.midnight.network/develop/tutorial/using/proof-server) runs in Docker and is required for both CLI and UI to generate zero-knowledge proofs:
-
-```bash
 docker --version
-```
+Install Dependencies
 
-Expected output: `Docker version X.X.X`.
+From the project root:
 
-If Docker is not found: [Install Docker Desktop](https://docs.docker.com/desktop/). Make sure Docker Desktop is running.
-
-### 3. Lace Wallet Extension (UI Only)
-
-For the web interface, install the official Lace wallet extension on [Chrome Store](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) or the [Edge Store](https://microsoftedge.microsoft.com/addons/detail/lace/efeiemlfnahiidnjglmehaihacglceia) (tested with version 1.36.0).
-
-After installing, set up the Midnight wallet:
-
-1. Create a **new wallet** — Midnight will appear as a network option
-2. Set **Network** to **Preprod**
-3. Set **Proof server** to **Local (http://localhost:6300)** — this must point to your local proof server started via Docker
-4. Click **Enter Wallet**
-5. Fund your wallet with tNIGHT tokens from the [Preprod Faucet](https://midnight-tmnight-preprod.nethermind.dev/)
-6. Go to **Tokens** in the wallet, click **Generate tDUST**, and confirm the transaction — tDUST tokens are required to pay transaction fees on preprod
-
-## Setup Instructions
-
-### Install Project Dependencies
-
-```bash
 npm install
-```
-
-This repository uses npm workspaces. Run installation once from the repository root.
-
-### Compile the Smart Contract
-
-The Compact compiler (`compactc 0.31.0`) generates TypeScript bindings and zero-knowledge circuits from the smart contract source code:
-
-```bash
+Compile the Compact Contract
 cd contract
-npm run compact    # Compiles the Compact contract
-npm run build      # Copies compiled files to dist/
-cd ..
-```
-
-Expected output:
-
-```
-> compact
-> compact compile src/bboard.compact ./src/managed/bboard
-
-Compiling 2 circuits:
-  circuit "post" (k=14, rows=10070)
-  circuit "takeDown" (k=14, rows=10087)
-
-> build
-> rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/bboard.compact ./dist
-
-```
-
-### Build the CLI Interface
-
-```bash
-cd bboard-cli
+npm run compact
 npm run build
 cd ..
-```
-
-### Build the UI Interface (Optional)
-
-Only needed if you want to use the web interface:
-
-```bash
-cd bboard-ui
+Build the API
+cd api
 npm run build
 cd ..
-```
-
-## Option 1: CLI Interface
-
-### Start the Proof Server
-
-The CLI requires a local proof server running in Docker:
-
-```bash
-cd bboard-cli
-docker compose -f proof-server-local.yml up -d
-```
-
-This uses `midnightntwrk/proof-server:8.0.3` on `http://127.0.0.1:6300`.
-
-### Run the CLI
-
-```bash
-# For preprod network
-npm run preprod-remote
-
-# For preview network
-npm run preview-remote
-```
-
-### Using the CLI
-
-#### Create a Wallet
-
-1. Choose option `1` to build a fresh wallet
-2. The system will generate a wallet address and seed
-3. **Save both the address and seed** - you'll need them later
-
-Expected output is similar to:
-
-```
-Your wallet seed is: [64-character hex string]
-Using unshielded address: mn_addr_preprod1hdvtst70zfgd8wvh7l8ppp7mcrxnjn56wc5hlxpwflz3fxdykaesrw0ln4 waiting for funds...
-```
-
-#### Fund Your Wallet
-
-Before deploying contracts, you need testnet tokens.
-
-1. Copy your wallet address from the output above
-2. Visit the [faucet](https://midnight-tmnight-preprod.nethermind.dev/)
-3. Paste your address and request funds
-4. Wait for the CLI to detect the funds (takes 2-3 minutes)
-
-Expected output after funding is similar to:
-
-```
-Your NIGHT wallet balance is: 1000000000
-```
-
-#### Deploy Your Contract
-
-1. Choose the contract deployment option
-2. Wait for deployment (takes ~30 seconds)
-3. **Save the contract address** for future use
-
-Expected output:
-
-```
-Deployed bulletin board contract at address: [contract address]
-```
-
-#### Use the Bulletin Board
-
-You can now:
-
-- **Post** a message to the bulletin board
-- **View** the current message
-- **Remove** your message (only if you posted it)
-- **Exit** when done
-
-Each action creates a real transaction on Midnight Testnet using zero-knowledge proofs generated by the proof server.
-
-## Option 2: Web UI Interface
-
-The web interface uses the same proof server and requires additional browser setup.
-
-### Start the Proof Server (if not already running)
-
-If you haven't started the proof server for the CLI, start it now:
-
-```bash
-cd bboard-cli
-docker compose -f proof-server-local.yml up -d
-cd ..
-```
-
-Verify it's running:
-
-```bash
-docker ps
-```
-
-### Start the Web Interface
-
-The UI can run against preprod or preview networks:
-
-```bash
+Build the Frontend
 cd bboard-ui
+npm run build
 
-# For preprod network
-npm run build:start
+The frontend build also copies the generated proving/verifying keys and ZKIR files required by the application.
 
-# For preview network
-npm run build:start:preview
-```
+Start the Frontend
 
-The UI will be available at:
+After building:
 
-- http://127.0.0.1:8080
+npm run start
 
-### Browser Setup
+The exact command may depend on the local environment and selected Midnight network.
 
-1. **Open the UI URL** in a browser with Lace wallet extension installed
-2. **Set up Lace wallet** if it's your first time
-3. **Authorize the application** when Lace wallet prompts
-4. Use the bulletin board web interface
+🧪 Testing
 
-## Useful Links
+Automated tests are part of the Level 3 submission requirements.
 
-- Get Testnet tNIGHT on [Preprod Faucet](https://midnight-tmnight-preprod.nethermind.dev/) or [Preview Faucet](https://midnight-tmnight-preview.nethermind.dev/)
-- [Midnight Documentation](https://docs.midnight.network/examples/dapps/bboard) - Complete developer guide
-- [Compatibility Matrix](https://docs.midnight.network/relnotes/support-matrix) - Current supported Midnight component versions
-- [Compact Language Guide](https://docs.midnight.network/compact/writing) - Smart contract language reference
-- Get Lace wallet on the [Chrome Store](https://chromewebstore.google.com/detail/lace/gafhhkghbfjjkeiendhlofajokpaflmk) or the [Edge Store](https://microsoftedge.microsoft.com/addons/detail/lace/efeiemlfnahiidnjglmehaihacglceia)
+Test Requirement
 
-## Troubleshooting
+The project must demonstrate:
 
-| Common Issue                       | Solution                                                                                                  |
-| ---------------------------------- |-----------------------------------------------------------------------------------------------------------|
-| `npm install` fails                | Ensure you're using Node `v24.11.1` or newer. Older Node versions can install with warnings but are not the target runtime |
-| Contract compilation fails         | Ensure the Compact toolchain is installed and run `npm run compact` from `contract/`                      |
-| Network connection timeout         | CLI requires internet connection, restart if connection times out                                         |
-| Token funding takes too long       | Wait 1-2 minutes, funding is automatic in CLI                                                             |
-| "Application not authorized" error | Start proof server: `docker compose -f proof-server-local.yml up -d`                                      |
-| Lace wallet not detected           | Install Lace wallet browser extension and refresh page                                                    |
-| Docker issues                      | Ensure Docker Desktop is running, check `docker --version`                                                |
-| Port 6300 in use                   | Run `docker compose down` then restart services                                                           |
-| Dependencies won't install         | Use Node.js LTS version. For older npm versions, you may need `--legacy-peer-deps`                        |
-| Contract deployment fails          | Verify wallet has sufficient balance and network connection                                               |
+Minimum 3 tests passing
+Test Command
+cd contract
+npm test
+Test Evidence
 
-## Notes
+A screenshot showing the successful test output will be added here:
 
-- CLI and UI can run simultaneously and share the same proof server
-- Proof server (Docker) is required for both CLI and UI to generate zero-knowledge proofs
-- Contract must be compiled before building CLI or UI
-- Fund your wallet using the testnet faucet before deploying contracts
+docs/screenshots/tests.png
+Test Result
+TODO: ADD FINAL TEST OUTPUT
+⚙️ CI/CD
 
-## Implementation Notes
+The project submission requires a CI/CD workflow with a passing run.
 
-- **Transaction fee configuration**  
-  The default `additionalFeeOverhead` value (`500_000_000_000_000_000n`) from `@midnight-ntwrk/testkit-js` is required on the `undeployed` network. Lower values can fail with `BalanceCheckOverspend` on the node side. On remote networks, that overhead requires too much dust, so the CLI overrides it to `1_000n`.
-- CLI private state is stored per contract address, matching the `Midnight.js 4.x` private-state provider model.
+The repository will include a GitHub Actions workflow for automated validation.
+
+The workflow will verify items such as:
+
+TypeScript compilation
+Contract compilation
+Tests
+Linting
+Build validation
+CI/CD Evidence
+
+GitHub Actions workflow:
+
+TODO: ADD WORKFLOW LINK / BADGE
+
+Passing workflow screenshot:
+
+docs/screenshots/ci-passing.png
+📸 Demo Evidence
+
+The final submission will include screenshots demonstrating the complete working flow.
+
+Screenshot 1 — Midnight Wallet
+docs/screenshots/wallet.png
+
+Shows:
+
+Connected wallet
+Midnight network
+Wallet balance/network configuration
+Screenshot 2 — Contract Address
+docs/screenshots/contract-address.png
+
+Shows:
+
+Deployed contract address
+Screenshot 3 — Credential Issued
+docs/screenshots/credential-issued.png
+
+Shows:
+
+Successful credential issuance
+Screenshot 4 — Credential Active
+docs/screenshots/credential-active.png
+
+Shows:
+
+Credential Active
+Credential version
+Screenshot 5 — Eligibility Verified
+docs/screenshots/eligibility-verified.png
+
+Shows:
+
+Eligibility verified ✓
+
+and:
+
+Eligibility proven successfully without revealing CGPA or attendance.
+Screenshot 6 — Frontend
+docs/screenshots/frontend.png
+
+Shows the complete Student Eligibility Pass interface.
+
+🎥 Demo Video
+
+A short demonstration video will show the complete application flow.
+
+The target duration is approximately:
+
+1 minute
+
+Demo Flow
+1. Connect Midnight wallet
+        ↓
+2. Create Eligibility Pass
+        ↓
+3. Issue Eligibility Credential
+        ↓
+4. Show Credential Active
+        ↓
+5. Prove Eligibility
+        ↓
+6. Show Eligibility Verified
+Demo Video
+TODO: ADD DEMO VIDEO LINK
+🔗 Links
+GitHub Repository
+
+https://github.com/KrushnaSPPUDoT-code/student-eligibility-pass-level3
+
+Live Demo
+TODO: ADD LIVE DEMO URL
+Deployed Contract
+TODO: ADD CONTRACT ADDRESS
+Demo Video
+TODO: ADD VIDEO LINK
+📋 Level 3 Submission Checklist
+Requirement	Status
+Functional Midnight dApp	✅
+Meaningful use of Midnight privacy model	✅
+Minimum 3 tests passing	⏳
+CI/CD workflow	⏳
+Passing CI/CD run	⏳
+Approved idea	⏳
+Public GitHub repository	✅
+Complete README	🔄
+Live demo	⏳
+Test-output screenshot	⏳
+CI/CD evidence	⏳
+One-minute demo video	⏳
+Privacy model section	✅
+Product proposal approval evidence	⏳
+Minimum 10 meaningful commits	⏳
+📊 Current Development Status
+
+The current Level 3 implementation successfully demonstrates:
+
+Midnight wallet connection
+Contract deployment
+Eligibility credential issuance
+Active credential state
+Credential version tracking
+Eligibility proof
+Successful privacy-preserving verification
+Contract address display
+Contract address copy functionality
+React frontend integration
+Midnight.js API integration
+Private student CGPA and attendance state
+Witness-based access to private values
+Zero-knowledge eligibility verification
+
+The successful frontend verification demonstrated that the student can prove eligibility without displaying their exact CGPA or attendance.
+
+🧑‍💻 Technology Stack
+Technology	Purpose
+Midnight Network	Privacy-preserving blockchain
+Compact	Smart contract language
+Midnight.js	Contract and wallet integration
+React	Frontend
+TypeScript	Application development
+Vite	Frontend build tooling
+Material UI	User interface
+Docker	Local proof server
+Zero-Knowledge Proofs	Private eligibility verification
+GitHub Actions	CI/CD
+🔒 Security and Privacy Principles
+
+Student Eligibility Pass follows a privacy-first design.
+
+Sensitive academic information is not intentionally exposed through the public UI or public contract state.
+
+The application's core privacy principle is:
+
+Prove the condition, not the underlying data.
+
+Instead of publishing:
+
+CGPA = 8.50
+Attendance = 85%
+
+the application allows the student to demonstrate:
+
+CGPA ≥ 8.00
+Attendance ≥ 75%
+
+while keeping the underlying values private.
+
+📄 License
+
+This project is developed as part of the Midnight Level 3 project.
+
+Built with:
+
+Midnight Network
+Compact
+Midnight.js
+React
+TypeScript
+🙌 Student Eligibility Pass
+
+A privacy-preserving way to prove academic eligibility without exposing private academic data.
+
+
+
+### After pasting
+
+
+In nano:
+
+
+**Save:**
+```text
+Ctrl + O
+Enter
+
+Exit:
+
+Ctrl + X
+
+Then run:
+
+wc -l README.md
+git diff --check
+git status
+
+If git diff --check gives no output, that's good.
