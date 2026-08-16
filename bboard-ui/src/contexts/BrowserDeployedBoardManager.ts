@@ -220,7 +220,7 @@ export class BrowserDeployedBoardManager implements DeployedBoardAPIProvider {
 const initializeProviders = async (logger: Logger): Promise<BBoardProviders> => {
   const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
   const connectedAPI = await connectToWallet(logger, networkId);
-  const zkConfigPath = window.location.origin; // '../../../contract/src/managed/bboard';
+  const zkConfigPath = new URL(import.meta.env.BASE_URL, window.location.origin).toString(); // '../../../contract/src/managed/bboard';
   const keyMaterialProvider = new FetchZkConfigProvider<BBoardCircuitKeys>(zkConfigPath, fetch.bind(window));
   const config = await connectedAPI.getConfiguration();
   const inMemoryBBoardPrivateStateProvider = inMemoryPrivateStateProvider<string, BBoardPrivateState>();

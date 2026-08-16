@@ -39,7 +39,7 @@ export const Header: React.FC = () => (
       }}
       data-testid="header-logo"
     >
-      <img src="/midnight-logo.png" alt="logo-image" height={66} />
+      <img src={`${import.meta.env.BASE_URL}midnight-logo.png`} alt="logo-image" height={66} />
     </Box>
   </AppBar>
 );
