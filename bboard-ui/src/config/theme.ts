@@ -21,7 +21,7 @@ export const theme = createTheme({
   typography: {
     fontFamily: 'Helvetica',
     allVariants: {
-      color: 'white',
+      color: '#222222',
     },
   },
   palette: {
