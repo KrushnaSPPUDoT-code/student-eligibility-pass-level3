@@ -87,10 +87,15 @@ For example, the student can prove:
 
 ```text
 CGPA ≥ 8.00
-Attendance ≥ 75% without publishing values such as:
+Attendance ≥ 75%
+```
 
+without publishing values such as:
+
+```text
 CGPA = 8.50
 Attendance = 85%
+```
 
 The purpose of the zero-knowledge proof is to demonstrate that the required conditions are satisfied without revealing the underlying private values.
 
