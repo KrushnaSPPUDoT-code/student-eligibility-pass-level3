@@ -128,18 +128,22 @@ export class BBoardAPI implements DeployedBBoardAPI {
   }
 
   static async join(providers: BBoardProviders, contractAddress: ContractAddress, logger?: Logger): Promise<BBoardAPI> {
-    logger?.info({
-      joinContract: {
-        contractAddress,
-      },
-    });
+    logger?.info({ contractAddress }, 'JOIN STEP 1: starting join');
+
+    const initialPrivateState = await BBoardAPI.getPrivateState(providers, contractAddress);
+
+    logger?.info('JOIN STEP 2: private state ready');
+
+    logger?.info('JOIN STEP 3: calling findDeployedContract');
 
     const deployedBBoardContract = await findDeployedContract<BBoardContract>(providers, {
       contractAddress,
       compiledContract: CompiledBBoardContractContract,
       privateStateId: bboardPrivateStateKey,
-      initialPrivateState: await BBoardAPI.getPrivateState(providers, contractAddress),
+      initialPrivateState,
     });
+
+    logger?.info('JOIN STEP 4: findDeployedContract completed');
 
     return new BBoardAPI(deployedBBoardContract, providers, logger);
   }
