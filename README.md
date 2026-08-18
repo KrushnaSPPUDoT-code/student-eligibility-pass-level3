@@ -1,5 +1,7 @@
 # Student Eligibility Pass
 
+[![CI](../../actions/workflows/ci.yaml/badge.svg)](../../actions/workflows/ci.yaml)
+
 A privacy-preserving student eligibility dApp built on the [Midnight Network](https://midnight.network/).
 
 Student Eligibility Pass allows a student to prove that they satisfy academic eligibility requirements without revealing their exact CGPA or attendance.
@@ -282,3 +284,13 @@ Credential revocation
 📜 License
 
 This project is based on Midnight's example dApp structure and is intended for educational and demonstration purposes.
+
+## 🔗 Midnight Preprod Contract
+
+The Student Eligibility Pass contract is deployed on the **Midnight Preprod network**.
+
+**Preprod Contract Address:**
+
+`0200dbf964f541e1950883f5b2f539b66fd6111e46ce8e6e9551fbdd180114d5dd5b`
+
+The frontend supports displaying and copying the deployed contract address for verification and joining an existing deployment.
